@@ -21,7 +21,7 @@ If you just need to parse an OpenGraph data from HTML then method `ProcessHTML` 
 
 Example:
 
-```golang
+```go
 package main
 
 import (
@@ -56,7 +56,7 @@ While using this method you don't need to reparse your parsed html again, just f
 
 Example:
 
-```golang
+```go
 package main
 
 import (
