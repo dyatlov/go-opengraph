@@ -36,9 +36,9 @@ type Audio struct {
 
 // Article contain Open Graph Article structure
 type Article struct {
-	PublishedTime  time.Time  `json:"published_time"`
-	ModifiedTime   time.Time  `json:"modified_time"`
-	ExpirationTime time.Time  `json:"expiration_time"`
+	PublishedTime  *time.Time `json:"published_time"`
+	ModifiedTime   *time.Time `json:"modified_time"`
+	ExpirationTime *time.Time `json:"expiration_time"`
 	Section        string     `json:"section"`
 	Tags           []string   `json:"tags"`
 	Authors        []*Profile `json:"authors"`
@@ -55,7 +55,7 @@ type Profile struct {
 // Book contains Open Graph Book structure
 type Book struct {
 	ISBN        string     `json:"isbn"`
-	ReleaseDate time.Time  `json:"release_date"`
+	ReleaseDate *time.Time `json:"release_date"`
 	Tags        []string   `json:"tags"`
 	Authors     []*Profile `json:"authors"`
 }
@@ -244,17 +244,17 @@ func (og *OpenGraph) processArticleMeta(metaAttrs map[string]string) {
 	case "article:published_time":
 		t, err := time.Parse(time.RFC3339, metaAttrs["content"])
 		if err == nil {
-			og.Article.PublishedTime = t
+			og.Article.PublishedTime = &t
 		}
 	case "article:modified_time":
 		t, err := time.Parse(time.RFC3339, metaAttrs["content"])
 		if err == nil {
-			og.Article.ModifiedTime = t
+			og.Article.ModifiedTime = &t
 		}
 	case "article:expiration_time":
 		t, err := time.Parse(time.RFC3339, metaAttrs["content"])
 		if err == nil {
-			og.Article.ExpirationTime = t
+			og.Article.ExpirationTime = &t
 		}
 	case "article:secttion":
 		og.Article.Section = metaAttrs["content"]
@@ -291,7 +291,7 @@ func (og *OpenGraph) processBookMeta(metaAttrs map[string]string) {
 	case "book:release_date":
 		t, err := time.Parse(time.RFC3339, metaAttrs["content"])
 		if err == nil {
-			og.Book.ReleaseDate = t
+			og.Book.ReleaseDate = &t
 		}
 	case "book:isbn":
 		og.Book.ISBN = metaAttrs["content"]
