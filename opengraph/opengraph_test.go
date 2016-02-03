@@ -8,8 +8,7 @@ import (
 	"github.com/dyatlov/go-opengraph/opengraph"
 )
 
-func TestOpenGraphProcessHTML(t *testing.T) {
-	html := `
+const html = `
   <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
 <head profile="http://gmpg.org/xfn/11">
@@ -31,6 +30,19 @@ func TestOpenGraphProcessHTML(t *testing.T) {
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:creator" content="@WordPress" />
   `
+
+func BenchmarkOpenGraph_ProcessHTML(b *testing.B) {
+	og := opengraph.NewOpenGraph()
+	b.ReportAllocs()
+	b.SetBytes(int64(len(html)))
+	for i := 0; i < b.N; i++ {
+		if err := og.ProcessHTML(strings.NewReader(html)); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func TestOpenGraphProcessHTML(t *testing.T) {
 	og := opengraph.NewOpenGraph()
 	err := og.ProcessHTML(strings.NewReader(html))
 
