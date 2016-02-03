@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 )
 
 // Image defines Open Graph Image type
@@ -104,41 +105,32 @@ func (og *OpenGraph) String() string {
 
 // ProcessHTML parses given html from Reader interface and fills up OpenGraph structure
 func (og *OpenGraph) ProcessHTML(buffer io.Reader) error {
-	doc, err := html.Parse(buffer)
-	if err != nil {
-		return err
-	}
-
-	var parseHead func(*html.Node)
-	parseHead = func(n *html.Node) {
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			if c.Type == html.ElementNode && c.Data == "meta" {
-				m := make(map[string]string)
-				for _, a := range c.Attr {
-					m[a.Key] = a.Val
-				}
-
-				og.ProcessMeta(m)
+	z := html.NewTokenizer(buffer)
+	for {
+		tt := z.Next()
+		switch tt {
+		case html.ErrorToken:
+			if z.Err() == io.EOF {
+				return nil
 			}
+			return z.Err()
+		case html.StartTagToken, html.SelfClosingTagToken, html.EndTagToken:
+			name, hasAttr := z.TagName()
+			if atom.Lookup(name) == atom.Body {
+				return nil // OpenGraph is only in head, so we don't need body
+			}
+			if atom.Lookup(name) != atom.Meta || !hasAttr {
+				continue
+			}
+			m := make(map[string]string)
+			var key, val []byte
+			for hasAttr {
+				key, val, hasAttr = z.TagAttr()
+				m[atom.String(key)] = string(val)
+			}
+			og.ProcessMeta(m)
 		}
 	}
-
-	var f func(*html.Node)
-	f = func(n *html.Node) {
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			if c.Type == html.ElementNode {
-				if c.Data == "head" {
-					parseHead(c)
-					continue
-				} else if c.Data == "body" { // OpenGraph is only in head, so we don't need body
-					break
-				}
-			}
-			f(c)
-		}
-	}
-	f(doc)
-
 	return nil
 }
 
