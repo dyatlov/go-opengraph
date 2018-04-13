@@ -131,7 +131,6 @@ func (og *OpenGraph) ProcessHTML(buffer io.Reader) error {
 			og.ProcessMeta(m)
 		}
 	}
-	return nil
 }
 
 // ProcessMeta processes meta attributes and adds them to Open Graph structure if they are suitable for that
