@@ -12,7 +12,7 @@ const html = `
   <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
 <head profile="http://gmpg.org/xfn/11">
-<meta charset="utf-8" />
+<meta http-equiv="content-type" content="text/html; charset=windows-1250">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WordPress &#8250;   WordPress 4.3 &#8220;Billie&#8221;</title>
 
@@ -48,6 +48,10 @@ func TestOpenGraphProcessHTML(t *testing.T) {
 
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	if len(og.Charset) == 0 {
+		t.Error("charset parsed incorrectly")
 	}
 
 	if og.Type != "article" {
