@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"strconv"
+	"strings"
 	"time"
 
 	"golang.org/x/net/html"
@@ -66,6 +67,7 @@ type OpenGraph struct {
 	isArticle        bool
 	isBook           bool
 	isProfile        bool
+	Charset          string   `json:"charset"`
 	Type             string   `json:"type"`
 	URL              string   `json:"url"`
 	Title            string   `json:"title"`
@@ -124,9 +126,20 @@ func (og *OpenGraph) ProcessHTML(buffer io.Reader) error {
 			}
 			m := make(map[string]string)
 			var key, val []byte
+			var hasMIME bool
 			for hasAttr {
 				key, val, hasAttr = z.TagAttr()
-				m[atom.String(key)] = string(val)
+				keyString, valString := atom.String(key), string(val)
+				m[keyString] = string(valString)
+				if keyString == "charset" {
+					og.Charset = valString
+				}
+				if keyString == "http-equiv" && strings.EqualFold(valString, "content-type") {
+					hasMIME = true
+				}
+			}
+			if hasMIME {
+				og.processCharsetMetaForHTML4(m)
 			}
 			og.ProcessMeta(m)
 		}
@@ -324,5 +337,14 @@ func (og *OpenGraph) processProfileMeta(metaAttrs map[string]string) {
 		og.Profile.Username = metaAttrs["content"]
 	case "profile:gender":
 		og.Profile.Gender = metaAttrs["content"]
+	}
+}
+
+func (og *OpenGraph) processCharsetMetaForHTML4(metaAttrs map[string]string) {
+	contentType := metaAttrs["content"]
+	const key = "charset="
+	if i := strings.Index(contentType, key); i > 0 {
+		charset := contentType[i+len(key):]
+		og.Charset = strings.TrimRight(charset, " ")
 	}
 }
