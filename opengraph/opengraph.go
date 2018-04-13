@@ -248,7 +248,7 @@ func (og *OpenGraph) processArticleMeta(metaAttrs map[string]string) {
 		if err == nil {
 			og.Article.ExpirationTime = &t
 		}
-	case "article:secttion":
+	case "article:section":
 		og.Article.Section = metaAttrs["content"]
 	case "article:tag":
 		og.Article.Tags = append(og.Article.Tags, metaAttrs["content"])
