@@ -42,6 +42,67 @@ func BenchmarkOpenGraph_ProcessHTML(b *testing.B) {
 	}
 }
 
+func TestOpenGraphForwardDetails(t *testing.T) {
+	const sample = `<!DOCTYPE html>
+	<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+	<meta property="og:title" content="Humpback"/>
+	<meta property="og:type" content="video.other" />
+	<meta property="og:image"             content="https://i.imgur.com/h5FZ72Yh.jpg" />
+	<meta property="og:video:width"       content="720" />
+	<meta property="og:video:height"      content="720" />
+	<meta property="og:video"             content="https://i.imgur.com/h5FZ72Y.mp4" />
+	<meta property="og:video:secure_url"  content="https://i.imgur.com/h5FZ72Y.mp4" />
+	<meta property="og:video:type"        content="video/mp4" />
+	<meta property="og:description" content="Imgur: The magic of the Internet"/>
+
+	<meta property="og:video"             content="https://i.imgur.com/h5FZ72Y.ogg" />
+	<meta property="og:video:type"        content="video/ogg" />
+	<meta property="og:video:width"       content="360" />
+
+	<meta property="og:audio:type"       content="audio/mp3" />
+	<meta property="og:audio"            content="https://i.imgur.com/h5FZ72Y.mp3" />
+	`
+
+	og := opengraph.NewOpenGraph()
+	err := og.ProcessHTML(strings.NewReader(sample))
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if og.Type != "video.other" {
+		t.Error("type parsed incorrectly")
+	}
+
+	if len(og.Videos) != 2 {
+		t.Error("videos parsed incorrectly")
+	} else {
+		if og.Videos[0].URL != "https://i.imgur.com/h5FZ72Y.mp4" {
+			t.Error("video url parsed incorrectly")
+		}
+		if og.Videos[0].Width != 720 {
+			t.Error("video width parsed incorrectly")
+		}
+		if og.Videos[1].URL != "https://i.imgur.com/h5FZ72Y.ogg" {
+			t.Error("video url parsed incorrectly")
+		}
+		if og.Videos[1].Width != 360 {
+			t.Error("video width parsed incorrectly")
+		}
+	}
+
+	if len(og.Audios) != 1 {
+		t.Error("audio parsed incorrectly")
+	} else {
+		if og.Audios[0].URL != "https://i.imgur.com/h5FZ72Y.mp3" {
+			t.Error("audio url parsed incorrectly")
+		}
+		if og.Audios[0].Type != "audio/mp3" {
+			t.Error("audio type parsed incorrectly")
+		}
+	}
+}
+
 func TestOpenGraphProcessHTML(t *testing.T) {
 	og := opengraph.NewOpenGraph()
 	err := og.ProcessHTML(strings.NewReader(html))
