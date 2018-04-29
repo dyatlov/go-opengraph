@@ -7,6 +7,8 @@ To download and install this package run:
 
 `go get github.com/dyatlov/go-opengraph/opengraph`
 
+*NOTE: if you need to grab as much info from a page as possible consider using [dyatlov/go-htmlinfo](https://github.com/dyatlov/go-htmlinfo)*
+
 Methods:
 
  * `NewOpenGraph()` - create a new OpenGraph instance
