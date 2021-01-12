@@ -153,6 +153,79 @@ func TestOpenGraphProcessHTML(t *testing.T) {
 	}
 }
 
+func TestOpenGraphProcessHTML_YouTube(t *testing.T) {
+	const youTubeHTML = `
+	<!DOCTYPE html>
+	<html style="font-size: 10px;font-family: Roboto, Arial, sans-serif;" lang="en-GB">
+	<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	</head>
+	<body dir="ltr" no-y-overflow>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta property="og:site_name" content="YouTube">
+	<meta property="og:url" content="https://www.youtube.com/watch?v=test123">
+	<meta property="og:title" content="Test 123">
+	<meta property="og:image" content="https://i.ytimg.com/vi/test123/hqdefault.jpg">
+	<meta property="og:image:width" content="480">
+	<meta property="og:image:height" content="360">
+	<meta property="og:description" content="This is a test.">
+	<meta property="og:type" content="video.other">
+	<meta property="og:video:url" content="https://www.youtube.com/embed/test123">
+	<meta property="og:video:secure_url" content="https://www.youtube.com/embed/test123">
+	<meta property="og:video:type" content="text/html">
+	<meta property="og:video:width" content="480">
+	<meta property="og:video:height" content="360">
+	<meta property="og:video:tag" content="Test">
+	<meta property="og:video:tag" content="Testing">
+	</body>
+	</html>
+	`
+
+	og := opengraph.NewOpenGraph()
+	err := og.ProcessHTML(strings.NewReader(youTubeHTML))
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if og.Type != "video.other" {
+		t.Error("type parsed incorrectly")
+	}
+
+	if len(og.Title) == 0 {
+		t.Error("title parsed incorrectly")
+	}
+
+	if len(og.URL) == 0 {
+		t.Error("url parsed incorrectly")
+	}
+
+	if len(og.Description) == 0 {
+		t.Error("description parsed incorrectly")
+	}
+
+	if len(og.Images) == 0 {
+		t.Error("images parsed incorrectly")
+	} else {
+		if len(og.Images[0].URL) == 0 {
+			t.Error("image url parsed incorrectly")
+		}
+	}
+
+	if len(og.SiteName) == 0 {
+		t.Error("site name parsed incorrectly")
+	}
+
+	if len(og.Videos) != 1 {
+		t.Error("videos parsed incorrectly")
+	} else {
+		if len(og.Videos[0].URL) == 0 {
+			t.Error("video url parsed incorrectly")
+		}
+	}
+}
+
 func TestOpenGraphProcessMeta(t *testing.T) {
 	og := opengraph.NewOpenGraph()
 
