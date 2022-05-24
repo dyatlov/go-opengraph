@@ -16,43 +16,65 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
+	_url "net/url"
 	"os"
+	"strings"
 
 	"github.com/dyatlov/go-opengraph/opengraph"
 )
 
-func printHelp() {
-	fmt.Printf("Usage: %s <url>\n", os.Args[0])
-	os.Exit(0)
-}
+const appVersion = "1.0.1"
 
 func main() {
+	version := flag.Bool("v", false, "prints current opengraph version")
+	url := flag.String("url", "", "fetch url and extract OpenGraph info from there")
+	flag.Parse()
+
+	if *version {
+		fmt.Println(appVersion)
+		return
+	}
+
+	// allow url to be provided without flag too, by default
+	if *url == "" && flag.NArg() == 1 {
+		*url = flag.Arg(0)
+	}
+
+	if *url != "" {
+		u, err := _url.ParseRequestURI(*url)
+		if err != nil {
+			log.Fatalf("Error parsing url: %s\n", err)
+		} else if !strings.HasPrefix(u.Scheme, "http") {
+			log.Fatal(u.Scheme)
+			log.Fatalf("URL should have http(s) protocol: %s\n", *url)
+		}
+	}
+
 	var reader io.Reader
 
-	if len(os.Args) == 2 {
-		url := os.Args[1]
-		resp, err := http.Get(url)
+	if *url != "" {
+		resp, err := http.Get(*url)
 		if err != nil {
-			log.Fatalf("Error while fetching url %s: %s", url, err)
+			log.Fatalf("Error while fetching url %s: %s", *url, err)
 		}
 
 		reader = resp.Body
 
 		defer resp.Body.Close()
-	} else if len(os.Args) == 1 {
+	} else {
 		fi, _ := os.Stdin.Stat()
 		if (fi.Mode() & os.ModeCharDevice) == 0 {
 			// pipe
 			reader = bufio.NewReader(os.Stdin)
 		} else {
-			printHelp()
+			flag.Usage()
+			return
 		}
-	} else {
-		printHelp()
 	}
 
 	og := opengraph.NewOpenGraph()

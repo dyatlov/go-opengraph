@@ -9,6 +9,8 @@ To download and install this package run:
 
 *NOTE: if you need to grab as much info from a page as possible consider using [dyatlov/go-htmlinfo](https://github.com/dyatlov/go-htmlinfo)*
 
+The package supports the whole set of OpenGraph properties from [The Open Graph protocol](https://ogp.me/).
+
 ## Command line tool
 
 You can also use `opengraph` from CLI.
@@ -20,17 +22,17 @@ Example usages:
 
 ```bash
 # download and parse html page
-./opengraph https://www.youtube.com/watch?v=yhoI42bdwU4
+./opengraph https://www.youtube.com/watch\?v\=yhoI42bdwU4
 ```
 
 ```bash
 # parse piped html
-curl https://www.youtube.com/watch?v=yhoI42bdwU4 | ./opengraph
+curl https://www.youtube.com/watch\?v\=yhoI42bdwU4 | ./opengraph
 ```
 
 ```bash
 # get video image
-./opengraph https://www.youtube.com/watch?v=yhoI42bdwU4 | jq '.images[0].url'
+./opengraph https://www.youtube.com/watch\?v\=yhoI42bdwU4 | jq '.images[0].url'
 ```
 
 ## Package Methods
