@@ -9,8 +9,8 @@ import (
 
 func main() {
 	html := `<html><head><meta property="og:type" content="article" />
-  <meta property="og:title" content="WordPress 4.3 &quot;Billie&quot;" />
-  <meta property="og:url" content="https://wordpress.org/news/2015/08/billie/" /></head><body></body></html>`
+	  <meta property="og:title" content="WordPress 4.3 &quot;Billie&quot;" />
+	  <meta property="og:url" content="https://wordpress.org/news/2015/08/billie/" /></head><body></body></html>`
 
 	og := opengraph.NewOpenGraph()
 	err := og.ProcessHTML(strings.NewReader(html))

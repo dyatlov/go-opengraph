@@ -9,7 +9,31 @@ To download and install this package run:
 
 *NOTE: if you need to grab as much info from a page as possible consider using [dyatlov/go-htmlinfo](https://github.com/dyatlov/go-htmlinfo)*
 
-Methods:
+## Command line tool
+
+You can also use `opengraph` from CLI.
+You can download latest version of `opengraph` for your OS from [Releases](https://github.com/dyatlov/go-opengraph/releases).
+
+You can query website endpoints using the tool directly or use it with other tools for your own workflows.
+
+Example usages:
+
+```bash
+# download and parse html page
+./opengraph https://www.youtube.com/watch?v=yhoI42bdwU4
+```
+
+```bash
+# parse piped html
+curl https://www.youtube.com/watch?v=yhoI42bdwU4 | ./opengraph
+```
+
+```bash
+# get video image
+./opengraph https://www.youtube.com/watch?v=yhoI42bdwU4 | jq '.images[0].url'
+```
+
+## Package Methods
 
  * `NewOpenGraph()` - create a new OpenGraph instance
  * `ProcessHTML(buffer io.Reader) error` - process given html into underlying data structure

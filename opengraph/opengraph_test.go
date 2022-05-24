@@ -21,8 +21,8 @@ const html = `
 <meta property="og:title" content="WordPress 4.3 &quot;Billie&quot;" />
 <meta property="og:url" content="https://wordpress.org/news/2015/08/billie/" />
 <meta property="og:description" content="Version 4.3 of WordPress, named &quot;Billie&quot; in honor of jazz singer Billie Holiday, is available for download or update in your WordPress dashboard. New features in 4.3 make it even easier to format y..." />
-<meta property="article:published_time" content="2015-08-18T19:12:38+00:00" />
-<meta property="article:modified_time" content="2015-08-19T13:10:24+00:00" />
+<meta property="og:article:published_time" content="2015-08-18T19:12:38+00:00" />
+<meta property="og:article:modified_time" content="2015-08-19T13:10:24+00:00" />
 <meta property="og:site_name" content="WordPress News" />
 <meta property="og:image" content="https://www.gravatar.com/avatar/2370ea5912750f4cb0f3c51ae1cbca55?d=mm&amp;s=180&amp;r=G" />
 <meta property="og:locale" content="en_US" />
@@ -235,7 +235,7 @@ func TestOpenGraphProcessMeta(t *testing.T) {
 		t.Error("wrong og:type processing")
 	}
 
-	og.ProcessMeta(map[string]string{"property": "book:isbn", "content": "123456"})
+	og.ProcessMeta(map[string]string{"property": "og:book:isbn", "content": "123456"})
 
 	if og.Book == nil {
 		t.Error("wrong book type processing")
@@ -245,21 +245,37 @@ func TestOpenGraphProcessMeta(t *testing.T) {
 		}
 	}
 
-	og.ProcessMeta(map[string]string{"property": "article:section", "content": "testsection"})
+	og.ProcessMeta(map[string]string{"property": "og:article:section", "content": "testsection"})
 
 	if og.Article != nil {
 		t.Error("article processed when it should not be")
 	}
 
-	og.ProcessMeta(map[string]string{"property": "book:author:first_name", "content": "John"})
+	og.ProcessMeta(map[string]string{"property": "og:book:author", "content": "https://site.com/author/VitaliDeatlov"})
+	og.ProcessMeta(map[string]string{"property": "og:book:author", "content": "https://site.com/author/JohnDoe"})
 
 	if og.Book != nil {
-		if len(og.Book.Authors) == 0 {
-			t.Error("book author was not processed")
-		} else {
-			if og.Book.Authors[0].FirstName != "John" {
-				t.Error("author first name was processed incorrectly")
-			}
+		if len(og.Book.Authors) != 2 {
+			t.Error("Incorrect amount of book authors")
 		}
+	} else {
+		t.Error("Book data wasn't processed")
+	}
+
+	og.ProcessMeta(map[string]string{"property": "og:music:creator", "content": "https://site.com/author/JohnDoe"})
+
+	if og.Music == nil {
+		t.Error("Incorrectly processed music creator")
+	}
+
+	og.ProcessMeta(map[string]string{"property": "og:music:song", "content": "https://site.com/song/1"})
+	og.ProcessMeta(map[string]string{"property": "og:music:musician", "content": "https://site.com/author/VitaliDeatlov"})
+	og.ProcessMeta(map[string]string{"property": "og:music:song", "content": "https://site.com/song/2"})
+
+	if len(og.Music.Songs) != 2 {
+		t.Error("Incorrectly parsed music song urls")
+	}
+	if len(og.Music.Musicians) != 1 {
+		t.Error("Incorrectly parsed song musicians")
 	}
 }
